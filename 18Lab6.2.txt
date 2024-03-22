@@ -1,0 +1,80 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+#include <windows.h>
+#include <string.h>	//	Подключение библиотек
+
+void messageBox(char text[], char * word) {
+	printf("Текст:\n");
+	puts(text);
+	printf("\nВведите слово для поиска:\n");
+	scanf("%s", word);	//	Ввод слова
+	printf("* * * Найденные слова * * *\n");
+}
+
+void main() {
+	SetConsoleCP(1251);
+	SetConsoleOutputCP(1251); //	Смена кодировки символов
+
+	char text[] = { "Здесь будет твой текст!" };	//	Текстовая строка
+	char word[64], search[64];	//	word - слово для поиска, search - найденные слова
+	char buffer[sizeof(text)];	//	buffer - строковый массив, для слов, в которых есть совпадения
+	int count = 0, max = 0;		//	count - счётчик совпадающих букв, max - максимальное количество совпадений в массиве buffer[]
+	int begin = 0, end = 0;	//	begin - номер начального элемента слова, end - количество символов до конца слова
+	int word_count = 0;		//	word_count - подсчёт количества найденных слов, для условия выхода из цикла
+	int space_num = 0;	//	номер элемента с пробелом, для нахождения начала слова
+
+	messageBox(text, word); //	функция для ввода искомого слова
+
+	buffer[0] = '\0';	//	обнуляем 0-ой элем. для работы ф-ии strncat_s(соединение строк)
+
+	for (int i = 0; i < strlen(text) + 1; i++) {	//	цикл по i, до конца строки text[], для нахождения слов с совпадениями и вынесения их строку buffer
+		if (text[i] == ' ' || text[i] == '\0') {	//	ЕСЛИ (i-ый элем. строки = пробелу или концу строки)
+			end = i - begin;	//	количество символов до конца слова в строке text
+			if (count > 0) {	//	если счётчик совпадений > 0
+				strncat(buffer, text + begin, end + 1);	//	присоединяем к строке buffer[]
+				count = 0;	//	обнуление счётчика совпадений
+				word_count++;	//	счётчик слов с совпадениями +1
+			}
+			begin = i + 1;	//	начальный элем. слова в строке text
+		}
+		else {	//	ИНАЧЕ (если i-ый элем. не равен пробелу или концу строки)
+			for (int j = 0; j < strlen(word); j++) {	//	цикл по j, до конца строки(word - искомого слова)
+				if (text[i] == word[j]) {	//	Если i-ый элем. строки text = j-ому элем. строки word
+					count++; break;	//	счётчик совпадений символов, выход из цикла
+				}
+			}
+		}
+	}
+	for (int i = 0; i < word_count; i++) {	//	цикл по i, пока i < количества найденных слов - word_count, для нахождения глубины вхождения слова
+		space_num = -1;  max = 0;	//	обнуление max и space_num
+		for (int j = 0; j < strlen(buffer) + 1; j++) {	//	цикл по j, до конца строки buffer
+			if (buffer[j] == ' ' || buffer[j] == '\0') {	//	ЕСЛИ buffer[j] = пробелу или конку строки
+				if (max < count) {	//	Нахождение max
+					max = count;
+					begin = space_num + 1;	//	Начальный элем.
+					end = j - begin;	//	количество символов до конца слова
+				}
+				space_num = j;	//	значение j-го элем. равного пробелу присваивается space_num
+				count = 0;	//	обнуление счётчика
+			}
+			else {
+				for (int k = 0; k < strlen(word); k++) {	//	цикл по k, до конца слова word
+					if (buffer[j] == word[k]) {		//	Если buffer[j] равен word[k]
+						count++; break;		//	счётчик совпадений символов +1, выход из цикла
+					}
+				}
+			}
+		}
+		if (max > 0) {	//	Если максимальное кол-во совпадений > 0
+			strncpy(search, buffer + begin, end + 1);//	найденное слово копируется в строку search[]
+			search[end] = '\0';
+			puts(search);	//	Выводим найденное слово
+			for (int k = 0; k < end + 1; k++) {	//цикл по k, пока k меньше количества символов до конца найденного слова, для сдвига строки buffer[]
+				for (int shift = begin; shift < strlen(buffer - 1); shift++) {	//	цикл по shift(сдвиг), пока shift < строки buffer
+					buffer[shift] = buffer[shift + 1];	//	элем. buffer равен элем. + 1
+				}
+			}
+		}
+	}
+	getchar(); getchar();	//	Завершение программы
+}

@@ -1,0 +1,27 @@
+#include <stdio.h> /*Для ввода и вывода*/
+#include <math.h>	/*Для математических функций - sqrt*/
+#include <locale.h> /*Для смены языка*/
+void main()
+{ /*подключение кириллицы в консоли*/
+	setlocale(LC_ALL, "russian");
+	/*объявление переменных*/
+	int x;	// x - переменная выбора в структуре switch
+	float a, r1, r2, s;
+	printf("Введите сторону равностороннего треугольника\na = ");
+	scanf_s("%f", &a); // Ввод стороны треугольника
+	printf("Введите значение от 1 до 4\nx = ");
+	scanf_s("%d", &x); // Ввод переменной для выбора
+	switch (x)
+	{
+	case(1): printf("a = %.1f\n", a); break; /*break для выхода из структуры switch*/
+	case(2): r1 = (sqrt(3) * a) / 6;
+		printf("R1 =%.1f\n", r1); break;
+	case(3): r1 = (sqrt(3) * a) / 6;
+		r2 = 2 * r1;
+		printf("R2 = %.1f\n", r2); break;
+	case(4): s = (sqrt(3) * a * a) / 4;
+		printf("S = %.1f\n", s); break;
+	default: printf("Введено некорректное значение\n"); /*default для значений не равных от 1 до 4*/
+	}
+	getchar(); getchar(); //	Конец программы
+}

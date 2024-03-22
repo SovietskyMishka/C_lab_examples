@@ -1,0 +1,120 @@
+/*	В каждой из ф-ций для нахождения кол-ва есть return, который в зависимости от
+	их работы возвращет этой ф-ции целочисленное значение (0 либо 1). Если необходимое
+	условие выполняется(Например ф-ция нашла простое число), то возвращается 1, в противном
+	случае(число не является простым) - 0. Значения от 0 до 1 нужны ф-циям, чтобы в main,
+	не только вызвать выполнение ф-ции,но и чтобы передать в условный оператор if значение
+	1 - true или 0 - false, тем самым в условии проверяется, что считанное из файла число
+	подходит нам для записи в результирующий файл result.bin*/
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <math.h>
+#include <locale.h>
+
+FILE* fp0, * fp1;		// Глобальные переменные указатели на файл, так как объявлены вне функций
+char fname0[] = { "source.bin" };
+char fname1[] = { "result.bin" };	//	Имена файлов
+
+int randBinFile() {		//	Ф-ция случайной генерации чисел
+	int num = 30, rnum;		// num - задаёт количество генерируемых чисел
+	if ((fp0 = fopen(fname0, "wb")) == NULL) {		//	Проверка существования файла и его открытие
+		printf("ERROR! File not found...\n");
+		return 0;
+	}
+	printf("%s:\n", fname0);
+	for (int i = 0; i < num; i++) {
+		rnum = rand() % 100;	//	генерация от 0 до 99
+		printf("%d ", rnum);	// rnum - случайно сгенерированное число
+		fwrite(&rnum, sizeof(int), 1, fp0);
+	}
+	printf("\n");
+	fclose(fp0);	//	Закрытие работы с файлом
+	return 0;
+}
+
+int primeNumCounter(int pnum, int* p_count) {	//	Функция для нахождения количества простых чисел
+	int flag = 1;
+	if (pnum <= 1)
+		return 0;
+	for (int i = 2; i <= sqrt(pnum); i++) {
+		if (pnum % i == 0) {
+			flag = 0;
+			break;
+		}
+	}
+	if (flag == 1) {
+		*p_count += 1;
+		return 1;
+	}
+	else
+		return 0;
+}
+
+int oddNumCounter(int onum, int* o_count) {		//	Функция для нахождения количества нечётных составных чисел
+	int flag = 1;
+	if (onum <= 1)
+		return 0;
+	if (onum % 2 != 0) {
+		for (int i = 2; i <= sqrt(onum); i++) {
+			if (onum % i == 0) {
+				flag = 0;
+				break;
+			}
+		}
+	}
+	if (flag == 0) {
+		*o_count += 1;
+		return 1;
+	}
+	else
+		return 0;
+}
+
+int evenNumCounter(int evnum, int* e_count) {	//	Функция для нахождения количества чётных чисел
+	if (evnum % 2 == 0) {
+		*e_count += 1;
+		return 1;
+	}
+	else
+		return 0;
+}
+
+int nullNumCounter(int nullnum, int* n_count) {		//	Функция для нахождения количества нулевых чисел
+	if (nullnum == 0)
+		*n_count += 1;
+	return 0;
+}
+
+int main() {
+	setlocale(LC_ALL, "rus");		//		Подключение кириллицы в консоли
+	int num;	//		Число считываемое из исходного файла
+	int Np = 0, No = 0, Ne = 0, Nn = 0;		//		Количества искомых чисел
+	srand(time(NULL));		//		Обнуление базы для генерации случайных чисел
+	randBinFile();		//		Вызов ф-ции для генерации случаных чисел в исходный файл
+	fp0 = fopen(fname0, "rb");		//	Открытие файла для чтения без проверки, так как при генерации чисел в исходный файл, его существование уже было проверено
+	if ((fp1 = fopen(fname1, "wb")) == NULL) {		//		Открытие результирующего файла для записи и проверка его существования(должен создаваться сам)
+		printf("ERROR! File not found...\n");
+		return 0;
+	}
+	fseek(fp1, 16, SEEK_SET);	//	Перенос указателя в файле на следующую строку, чтобы первая строка оставалась пустой, для записи в неё количества искомых чисел
+	while (!feof(fp0)) {		//		Цикл работающий пока не будет достигнут конец файла source.bin
+		fread(&num, sizeof(int), 1, fp0);	//	Считывание чисел из исходного файла source.bin в num 
+		if (!feof(fp0) && primeNumCounter(num, &Np) && num != 0)	//	Вызов ф-ции для нахожднения кол-ва простых чисел, проверка, что не конец файла и что ф-ция вернула 1 и что num не нулевое
+			fwrite(&num, sizeof(int), 1, fp1);	//		Запись в результирующий файл result.bin простого числа
+		if (!feof(fp0) && oddNumCounter(num, &No) && num != 0)		//	Вызов ф-ции для нахожднения кол-ва нечёт. сост. чисел,проверка, что не конец файла и что ф-ция вернула 1 и что num не нулевое
+			fwrite(&num, sizeof(int), 1, fp1);		//		Запись в результирующий файл result.bin нечёт. сост. числа
+		if (!feof(fp0) && evenNumCounter(num, &Ne) && num != 0)		//	Вызов ф-ции для нахожднения кол-ва чётных чисел, проверка, что не конец файла и что ф-ция вернула 1 и что num не нулевое			
+			fwrite(&num, sizeof(int), 1, fp1);		//		Запись в результирующий файл result.bin нечёт. сост. числа
+		nullNumCounter(num, &Nn);	//	Вызов функции для нахождения кол-ва нулевых значений(Записывать в файл не нужно)
+	}
+	fclose(fp0);		//		Закрытие работы с файлом source.bin
+	fseek(fp1, 0, SEEK_SET);	//		Возврат указателя в начало первой строки	SEEK_SET - значит, установить указатель в заданное место - (0)
+	fwrite(&Np, sizeof(int), 1, fp1);	//		Запись в файл result.bin Np - кол-во простых чисел
+	fwrite(&No, sizeof(int), 1, fp1);	//		Запись в файл result.bin No - кол-во нечёт.сост. чисел
+	fwrite(&Ne, sizeof(int), 1, fp1);	//		Запись в файл result.bin Ne - кол-во чётных чисел
+	fwrite(&Nn, sizeof(int), 1, fp1);	//		Запись в файл result.bin Nn - кол-во нулевых чисел
+	fclose(fp1);	//		Закрытие работы с файлом result.bin
+	printf("%s:\n %d | %d | %d | %d", fname1, Np, No, Ne, Nn);		//	Вывод найденного кол-ва всех чисел
+	return 0;	//	Завершение программы
+}

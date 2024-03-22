@@ -1,0 +1,65 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <locale.h>		//	Подключение библиотек
+
+int random(int a, int b) {		//	Ф-ция возвращающая случайное значение
+	return a + rand() % (b - a + 1);
+}
+
+void vvod_klav(int* a, int N) {		//	Ф-ция ручного ввода с клавиатуры
+	for (int i = 0; i < N; i++) {		//	Цикл для ввода
+		printf("Эл-т A[%d] = ", i);
+		scanf_s("%d", &a[i]);
+		printf("\n");
+	}
+}
+
+void vvod_random(int* a, int N) {	//	Ф-ция для случайного ввода
+	printf("Случайный ввод:\n");
+	for (int i = 0; i < N; i++)		//	Цикл для ввода случайных чисел в массиве
+		a[i] = random(1, 30);
+}
+
+void vivod(int* a, int N) {		//		Ф-ция для вывода
+	for (int i = 0; i < N; i++)
+		printf("Эл-т A[%d] = %d\n", i, a[i]);
+}
+
+void formMassiveB(int* a, int* b, int N) {		//	Ф-ция для формирования массива B
+	for (int i = 0; i < N; i++) {	//		Цикл для нумерации массива B
+		b[i] = 0;	//	Обнуление элемента
+		for (int j = 0; j <= i; j++) {		//	Цикл для нумерации массива A
+			b[i] += a[j];	//		присваивание массиву B суммы элементов массива A до j
+		}
+	}
+}
+
+void main() {
+	setlocale(LC_ALL, "rus");	//	Подключение кириллицы в консоли
+	int N,* A,* B;
+	int k;
+
+	srand(time(NULL));	//	Сброс базы для генерации чисел
+
+	printf("Введите кол-во элементов в массиве A:\n");
+	scanf("%d", &N);	//	Ввод кол-ва элементов массива
+
+	A = (int*)malloc(sizeof(int) * N);	//	Определение размера массива A
+	B = (int*)malloc(sizeof(int) * N);	//	Определение размера массива B
+
+	printf("Выберите способ ввода:\n1 - ручной\n2 - случайный\n>> ");
+	scanf("%d", &k);	//	Ввод переменной для ввода
+
+	if (k == 1)		//	Выбор способа ввода
+		vvod_klav(A, N);
+	else
+		vvod_random(A, N);
+	printf("Вывод массива A:\n");
+	vivod(A, N);	//	Вызов ф-ции для вывода A
+	formMassiveB(A, B, N);		//	Вызов ф-ции для формирования массива B
+	printf("Вывод массива B:\n");
+	vivod(B, N);	//	Вызов ф-ции для вывода B
+ 	getchar(); getchar();	//	Конец программы
+}

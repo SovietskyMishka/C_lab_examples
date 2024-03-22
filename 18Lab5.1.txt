@@ -1,0 +1,87 @@
+// ЛАБАРАТОРНАЯ РАБОТА 5.1
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <math.h>
+#include <locale.h>
+
+void arrayInput(int *A, int N) {      // Функция ручного ввода массива
+	for (int i = 0; i < N; i++) {
+		printf("A[%d] = ", i);
+		scanf("%d", &A[i]);
+	}
+}
+
+void rand_arr(int* A, int N) {           // Функция случаного заполнения массива
+	int a, b, temp = 0;
+	printf("Задайте диапазон чисел:\n");
+	printf("Верхняя граница - (a) = ");
+	scanf("%d", &a);
+	printf("Нижняя граница - (b) = ");
+	scanf("%d", &b);
+	if (a < b) {       // Перестановка значений границ заданного диапазона случайных чисел, если верхняя < нижней
+		a = temp;
+		a = b;
+		b = temp;
+	}
+	for (int i = 0; i < N; i++)    // Заполнение элементов массива случайными числами
+		A[i] = rand() % a + b;
+}
+void arrayMinimum(int* A, int N) {        // Функция нахождения минимального значения, среди заданных k элементов
+	int k, min = A[0];
+	do {
+		printf("Задайте значение первых k элементов:\n");
+		scanf("%d", &k);
+		if (k > N)
+			printf("Значение k > кол-ва элементов массива!\n");
+		if (k < 1)
+			printf("Некорректное значение k!\n");
+	} while (k > N || k < 1);
+	for (int j = 0; j < k - 1; j++) {    // Нахождение минимального значения, среди k заданных чисел
+		if (min > A[j])
+			min = A[j];
+	}
+	for (int i = 0; i < N; i++)     // Замена каждого элемента массива на найденное минимальное значение
+		A[i] = min;
+}
+
+void arrayOutput(int *A, int N) {              // Функция вывода массива
+	printf("\n* * * * Массив A: * * * *\n");
+	for (int i = 0; i < N; i++)
+		printf("A[%d] = %d\n", i + 1, A[i]);
+}
+
+void main() {
+	setlocale(LC_ALL, "rus");
+
+	int dess, N;
+	int *A;
+
+	srand(time(NULL));   // Функция для генерации случайных псевдо-случайных чисел
+	do {
+		printf("Задайте размер массива: (0 < N <= 10)\n");
+		scanf("%d", &N);
+		if (N <= 0 || N > 10)
+			printf("Некорректное значение: N = %d!\n", N);
+	} while (N <= 0 || N > 10);
+	A = (int*)malloc(sizeof(int) * N); // Определение размера массива
+
+	do {
+		printf("Выберите способ ввода:\n1) - Ручной ввод\n2) - Случайный ввод\n");
+		scanf("%d", &dess);
+		if (dess == 1)
+			arrayInput(A, N);
+		else if (dess == 2)
+			rand_arr(A, N);
+		else
+			printf("Введено некорректное значение: (%d)\n", dess);
+	} while (dess < 1 || dess > 2);
+
+	arrayOutput(A, N);
+	arrayMinimum(A, N);
+	arrayOutput(A, N);
+
+	free(A); // освобождение массива A
+	getchar(); getchar();
+}

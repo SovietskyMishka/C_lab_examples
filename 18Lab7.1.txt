@@ -1,0 +1,37 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+#include <stdlib.h>
+
+int main() {
+	char fname0[] = "1.txt";
+	char fname1[] = "2.txt";
+	char fname2[] = "3.txt";	// Имена файлов или путь
+	
+	int invNum0 = 0, invNum1 = 0;
+	int x = 0, y = 0;
+	FILE *fp0, *fp1, *fp2;
+
+	if ((fp0 = fopen(fname0, "r")) == NULL || (fp1 = fopen(fname1, "r")) == NULL || (fp2 = fopen(fname2, "w")) == NULL) {
+		printf("\aОшибка! Файл не найден...\n");
+		exit(1);
+	}	// Проверка существования файлов
+
+	while (!feof(fp0)) {
+		fscanf(fp0, "%d %d", &invNum0, &x);
+		while (!feof(fp1)) {
+			fscanf(fp1, "%d %d", &invNum1, &y);
+			if (invNum0 == invNum1) {
+				fprintf(fp2, "%d\t\t%d\n", invNum0, x + y);
+				break;
+			}
+		}
+		if (invNum0 != invNum1) {
+			fprintf(fp2, "%d\t\t%d\n", invNum0, x);
+		}
+		rewind(fp1);
+	}
+	fclose(fp2);
+	fclose(fp1);
+	fclose(fp0);
+	return 0;
+}

@@ -1,0 +1,154 @@
+// ЛАБАРАТОРНАЯ РАБОТА 5.2
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <math.h>
+#include <locale.h>
+
+void matrixInput(int** A,int M, int N) {      // Функция ручного заполнения массива
+	for (int i = 0; i < M; i++) {
+		for (int j = 0; j < N; j++) {
+			printf("A[%d][%d] = ", i, j);
+			scanf("%d", &A[i][j]);
+		}
+	}
+}
+
+void randMatrix(int** A, int M, int N) {           // Функция случайного заполнения массива
+	int a, b, temp = 0;
+	do {
+		printf("Задайте диапазон значений:\n");
+		printf("1-я граница - (a) = ");
+		scanf("%d", &a);
+		printf("2-я граница - (b) = ");
+		scanf("%d", &b);
+		if (a == b)
+			printf("\nНеверный диапазон значений!\n");
+	} while (a == b);
+
+	if (a < b) {       // Перестановка значений границ заданного диапазона случайных чисел, если верхняя < нижней
+		a = temp;
+		a = b;
+		b = temp;
+	}
+	for (int i = 0; i < M; i++) {     // Заполнение элементов массива случайными числами
+		for (int j = 0; j < N; j++)
+			A[i][j] = rand() % a + b;
+	}
+}
+void matrixFunction(int** A, int** B, int M, int N) {    //Функция находящая максимальное количество одинаковых элементов в столбце
+	int x, max, l, y;
+
+	for (int i = 0; i < M; i++) {      // Обнуление массива B
+		for (int j = 0; j < N; j++)
+			B[i][j] = 0;
+	}
+
+	for (int j = 0; j < N; j++) {
+		x = A[0][j];
+		l = 0;
+		for (int k = 0; k < M; k++) {
+			if (l > 0) {
+				for (; l < M;) {
+					y = 0;
+					for (int m = 0; m < l; m++) {
+						if (A[l][j] == A[m][j]) {
+							y++;
+						}
+					}
+					if (y == 0) {
+						x = A[l][j];
+						break;
+					}
+					else
+						l++;
+				}
+			}
+			if (l == M)
+				break;
+			for (int i = 0; i < M; i++) {
+				if (A[i][j] == x)
+					B[l][j] += 1;
+			}
+			l++;
+		}
+	}
+	int num = 0;
+	max = B[0][0];
+	for (int i = 0; i < N; i++) {
+		for (int j = 0; j < M; j++) {
+			if (max < B[j][i]) {
+				max = B[j][i];
+				num = i;
+			}
+		}
+	}
+	printf("\nМаксимальное количество одинаковых элементов  - (%d), содержится в %d столбце\n", max, num + 1);
+}
+
+
+void matrixAoutput(int** A, int M, int N) {              // Функция вывода матрицы A
+	printf("\n____________________________________________________\n");
+	printf("* * * * * * * * * Матрица A:  * * * * * * * * *\n");
+	for (int i = 0; i < M; i++) {
+		for (int j = 0; j < N; j++) {
+			printf("\t%d", A[i][j]);
+			if (j == N - 1)
+				printf("\n");
+		}
+	}
+}
+
+void main() {
+	setlocale(LC_ALL, "rus");
+
+	int dess, N, M;
+	int** A, ** B;
+
+	srand(time(NULL));   // Функция для генерации псевдо-случайных чисел
+	do {
+		printf("Задайте кол-во строк матрицы: (2 < M <= 10)\n");
+		scanf("%d", &M);
+		if (M < 1 || M > 10)
+			printf("Некорректное значение: M = %d!\n", M);
+	} while (M < 1 || M > 10);
+	do {
+		printf("Задайте кол-во столбцов матрицы: (2 < N <= 10)\n");
+		scanf("%d", &N);
+		if (N < 1 || N > 10)
+			printf("Некорректное значение: N = %d!\n", N);
+	} while (N < 1 || N > 10);
+
+	A = (int**)malloc(sizeof(int*) * M); // Определение размера двумерного массива A
+	for (int i = 0; i < M; i++)
+		A[i] = (int*)malloc(sizeof(int) * N);
+
+	B = (int**)malloc(sizeof(int*) * M);  // Определение размера двумерного массива B
+	for (int k = 0; k < M; k++)
+		B[k] = (int*)malloc(sizeof(int) * N);
+
+	do {
+		printf("Выберите способ ввода:\n1) - Ручной ввод\n2) - Случайный ввод\n");
+		scanf("%d", &dess);
+		if (dess == 1)
+			matrixInput(A, M, N);
+		else if (dess == 2)
+			randMatrix(A, M, N);
+		else
+			printf("Введено некорректное значение: (%d)\n", dess);
+	} while (dess < 1 || dess > 2);
+
+	matrixAoutput(A, M, N);
+	matrixFunction(A, B, M, N);
+
+	for (int i = 0; i < M; i++)      // Очищение двумерного массива B
+		free(B[i]);
+	free(B);
+
+	for (int i = 0; i < M; i++)    // Очищение двумерного массива A
+		free(A[i]);
+	free(A);
+
+	getchar(); getchar();
+}
